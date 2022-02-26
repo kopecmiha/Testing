@@ -28,9 +28,9 @@ class CreateDekan(APIView):
                 serializer = DeanSingInSerializer(data=user)
                 serializer.is_valid(raise_exception=True)
                 serializer.save(password=make_password(user['password']), status="DEAN")
-                return Response({"error": "Wrong invite code"}, status=status.HTTP_201_CREATED)
+                return Response({"message": "User succesfully created"}, status=status.HTTP_201_CREATED)
             except (ValidationError, ObjectDoesNotExist):
-                return Response("Wrong invite code", status=status.HTTP_403_FORBIDDEN)
+                return Response({"error": "Wrong invite code"}, status=status.HTTP_201_CREATED)
         return Response({"error": "Wrong invite code"}, status=status.HTTP_403_FORBIDDEN)
 
 
@@ -64,7 +64,7 @@ class UpdateUserProfile(APIView):
 
     def put(self, request):
         avatar = request.data.get("Avatar")
-        serializer_data = request.data.get('user', {})
+        serializer_data = request.data
         if avatar:
             serializer_data.update({"avatar": avatar})
         serializer = UserProfileSerializer(

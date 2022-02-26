@@ -19,4 +19,5 @@ class UserSerializer(serializers.ModelSerializer):
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta(object):
         model = User
-        fields = "uuid", "username", "status", "email", "first_name", "last_name", "patronymic", "avatar", "status"
+        fields = "username", "first_name", "last_name", "patronymic", "avatar"
+        extra_kwargs = {'status': {'read_only': True}, 'uuid': {'read_only': True}, "email": {'read_only': True}}
