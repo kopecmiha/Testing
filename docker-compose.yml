@@ -1,0 +1,58 @@
+version: '3.8'
+services:
+  db:
+    restart: unless-stopped
+    image: postgres:12.0-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    networks:
+      - app_network
+    ports:
+      - 5432:5432
+
+  web:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+      args:
+        DATABASE_NAME: ${DATABASE_USER}
+        DATABASE_USER: ${DATABASE_PASSWORD}
+        DATABASE_PASSWORD: ${DATABASE_NAME}
+        DATABASE_HOST: ${DATABASE_HOST}
+        DATABASE_PORT: ${DATABASE_PORT}
+    command: gunicorn main.wsgi:application --bind 0.0.0.0:8000
+    expose:
+      - 8000
+    depends_on:
+      - db
+    networks:
+      - app_network
+      - server
+    volumes:
+      - static:/usr/src/app/static
+      - media:/usr/src/app/media
+
+  nginx:
+    restart: unless-stopped
+    container_name: testing
+    build: .nginx
+    volumes:
+      - static:/app/static
+      - media:/app/media
+    depends_on:
+      - web
+    networks:
+      - app_network
+      - server
+
+
+networks:
+  app_network:
+    driver: bridge
+  server:
+    external: true
+
+volumes:
+  postgres_data:
+  static:
+  media:
