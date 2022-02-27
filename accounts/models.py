@@ -16,6 +16,8 @@ class InviteCode(models.Model):
         default=uuid4, editable=False, verbose_name=_("Invite Code"), db_index=True
     )
 
+    objects = models.Manager()
+
     class Meta:
         verbose_name = _("Invite Code")
         verbose_name_plural = _("Invite Code")

@@ -33,6 +33,11 @@ AUTH_USER_MODEL = "accounts.User"
 
 # Application definition
 
+MODULES = [
+    'accounts',
+    'testing'
+]
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -40,8 +45,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'accounts',
-]
+] + MODULES
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
