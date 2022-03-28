@@ -12,7 +12,7 @@ class DeanSingInSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta(object):
         model = User
-        fields = "username", "status"
+        fields = "username", "status", "email"
         extra_kwargs = {'password': {'write_only': True}}
 
 
