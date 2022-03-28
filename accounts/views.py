@@ -29,7 +29,12 @@ class CreateDekan(APIView):
                 serializer = DeanSingInSerializer(data=user)
                 serializer.is_valid(raise_exception=True)
                 serializer.save(password=make_password(user['password']), status="DEAN")
-                return Response({"message": "User succesfully created"}, status=status.HTTP_201_CREATED)
+                user = serializer.data
+                payload = jwt_payload_handler(user)
+                token = jwt.encode(payload, settings.SECRET_KEY)
+                user_logged_in.send(sender=user.__class__,
+                                    request=request, user=user)
+                return Response({"message": "User succesfully created", 'token': token}, status=status.HTTP_201_CREATED)
             except (ValidationError, ObjectDoesNotExist):
                 return Response({"error": "Wrong invite code"}, status=status.HTTP_201_CREATED)
         return Response({"error": "Wrong invite code"}, status=status.HTTP_403_FORBIDDEN)
