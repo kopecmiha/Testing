@@ -3,6 +3,15 @@ from .models import Testing, Question, Answer
 
 
 class AnswerSerializer(serializers.ModelSerializer):
+
+    def _correct_answer(self, obj):
+        user_status = self.context.get("user_status")
+        if user_status == "STUDENT":
+            return None
+        return obj.correct_answer
+
+    correct_answer = serializers.SerializerMethodField("_correct_answer")
+
     class Meta(object):
         model = Answer
         fields = "text", "uuid_answer", "correct_answer", "question"
@@ -29,10 +38,3 @@ class TestingSerializer(serializers.ModelSerializer):
         model = Testing
         fields = "title", "subtitle", "answer_time", "uuid_testing", "questions"
         extra_kwargs = {'uuid_testing': {'read_only': True}, 'questions': {'read_only': True}}
-
-
-class ListTestSerializer(serializers.ModelSerializer):
-    class Meta(object):
-        model = Testing
-        fields = "title", "subtitle", "uuid_testing"
-        extra_kwargs = {'uuid_testing': {'read_only': True}}

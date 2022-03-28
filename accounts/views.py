@@ -11,6 +11,7 @@ from rest_framework.views import APIView
 from rest_framework_jwt.serializers import jwt_payload_handler
 
 from accounts.models import InviteCode, User
+from accounts.permissions import IsTeacherOrDean
 from accounts.serializer import DeanSingInSerializer, UserSerializer, UserProfileSerializer
 from main import settings
 
@@ -35,7 +36,7 @@ class CreateDekan(APIView):
 
 
 class CreateUser(APIView):
-    permission_classes = (AllowAny,)
+    permission_classes = (IsTeacherOrDean,)
 
     def post(self, request):
         request = request.data

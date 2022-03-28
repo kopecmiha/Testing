@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from accounts.permissions import IsTeacherOrDean
 from testing.models import Testing, Question, Answer
-from testing.serializer import TestingSerializer, AnswerSerializer, QuestionSerializer, ListTestSerializer
+from testing.serializer import TestingSerializer, AnswerSerializer, QuestionSerializer
 
 
 class CreateTest(APIView):
@@ -52,10 +52,11 @@ class GetTest(APIView):
     permission_classes = (IsAuthenticated,)
 
     def get(self, request, **kwargs):
+        user_status = request.user.status
         uuid_testing = kwargs.get("uuid_testing")
         testing = Testing.objects.filter(uuid_testing=uuid_testing)
         if testing:
-            serializer = TestingSerializer(instance=testing.first())
+            serializer = TestingSerializer(instance=testing.first(), context={"user_status": user_status})
             response = serializer.data
             return Response(response, status=status.HTTP_200_OK)
         return Response({"message": "Test not found"}, status=status.HTTP_404_NOT_FOUND)
@@ -66,7 +67,7 @@ class ListOfTest(APIView):
 
     def get(self, request):
         testings = Testing.objects.all()
-        serializer = ListTestSerializer(instance=testings, many=True)
+        serializer = TestingSerializer(instance=testings, many=True)
         response = serializer.data
         return Response(response, status=status.HTTP_200_OK)
 
@@ -79,10 +80,11 @@ class CreateQuestion(APIView):
         uuid_testing = question.get("uuid_testing")
         if not uuid_testing:
             return Response({"error": "Testing not specified"}, status=status.HTTP_400_BAD_REQUEST)
-        testing = Testing.objects.filter(uuid_testing=uuid_testing)
-        if not testing:
+        try:
+            testing = Testing.objects.get(uuid_testing=uuid_testing)
+        except Testing.DoesNotExist:
             return Response({"error": "Testing not found"}, status=status.HTTP_404_NOT_FOUND)
-        question["testing"] = testing.first().id
+        question["testing"] = testing.id
         serializer = QuestionSerializer(data=question)
         serializer.is_valid(raise_exception=True)
         serializer.save()
@@ -97,10 +99,11 @@ class UpdateQuestion(APIView):
         uuid_question = question.get("uuid_question")
         if not uuid_question:
             return Response({"error": "Question not found"}, status=status.HTTP_404_NOT_FOUND)
-        current_question = Question.objects.filter(uuid_question=uuid_question)
-        if not current_question:
+        try:
+            current_question = Question.objects.get(uuid_question=uuid_question)
+        except Question.DoesNotExist:
             return Response({"error": "Question not found"}, status=status.HTTP_404_NOT_FOUND)
-        serializer = QuestionSerializer(instance=current_question.first(), data=question, partial=True)
+        serializer = QuestionSerializer(instance=current_question, data=question, partial=True)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         response = serializer.data
