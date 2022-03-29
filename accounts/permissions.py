@@ -8,6 +8,6 @@ class IsTeacherOrDean(BasePermission):
     """
 
     def has_permission(self, request, view):
-        if request.user == AnonymousUser:
+        if request.user.is_anonymous:
             return False
         return bool(request.user.status == "TEACHER" or request.user.status == "DEAN")

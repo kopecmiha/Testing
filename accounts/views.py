@@ -82,6 +82,26 @@ class UpdateUserProfile(APIView):
         return Response(response, status=status.HTTP_200_OK)
 
 
+class GetStudents(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request):
+        users = User.objects.filter(status="STUDENT")
+        serializer = UserProfileSerializer(users, many=True)
+        response = serializer.data
+        return Response(response, status=status.HTTP_200_OK)
+
+
+class GetTeachers(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request):
+        users = User.objects.filter(status="TEACHER")
+        serializer = UserProfileSerializer(users, many=True)
+        response = serializer.data
+        return Response(response, status=status.HTTP_200_OK)
+
+
 class ObtainToken(APIView):
     permission_classes = (AllowAny,)
 
