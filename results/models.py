@@ -7,8 +7,8 @@ from accounts.models import User
 from testing.models import Testing, Question, Answer
 
 
-class TestingResults(models.Model):
-    result_uuid = models.UUIDField(
+class TestingSession(models.Model):
+    session_uuid = models.UUIDField(
         default=uuid4,
         editable=False,
         verbose_name=_("UUID Field"),
@@ -29,10 +29,6 @@ class TestingResults(models.Model):
         blank=True,
         verbose_name=_("Test"),
     )
-    answers = models.ManyToManyField(
-        to=Answer,
-        verbose_name=_("Answers"),
-    )
     user = models.ForeignKey(
         to=User,
         on_delete=models.CASCADE,
@@ -45,3 +41,24 @@ class TestingResults(models.Model):
     class Meta:
         verbose_name = _("Test")
         verbose_name_plural = _("Test")
+
+
+class UserAnswers(models.Model):
+    question = models.ForeignKey(
+        to=Question,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        verbose_name=_("Question"),
+    )
+    answers = models.ManyToManyField(
+        to=Answer,
+        verbose_name=_("Answers"),
+    )
+    session = models.ForeignKey(
+        to=TestingSession,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        verbose_name=_("Session"),
+    )
