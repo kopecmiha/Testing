@@ -39,8 +39,8 @@ class TestingSession(models.Model):
     objects = models.Manager()
 
     class Meta:
-        verbose_name = _("Test")
-        verbose_name_plural = _("Test")
+        verbose_name = _("Session")
+        verbose_name_plural = _("Sessions")
 
 
 class UserAnswers(models.Model):
@@ -62,3 +62,9 @@ class UserAnswers(models.Model):
         blank=True,
         verbose_name=_("Session"),
     )
+
+    objects = models.Manager()
+
+    class Meta:
+        verbose_name = _("User answers")
+        verbose_name_plural = _("User answers")
