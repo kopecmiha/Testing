@@ -1,17 +1,19 @@
 from datetime import datetime, timedelta
 
+from django.db.models import Q
 from django.shortcuts import render
 from rest_framework import status
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from results.models import TestingSession, UserAnswers
+from results.serializer import ResultsSerializer
 from testing.models import Testing
 
 
 class StartTesting(APIView):
-    permission_classes = (AllowAny,)
+    permission_classes = (IsAuthenticated,)
 
     def post(self, request):
         test = request.data.get("test_uuid")
@@ -27,7 +29,7 @@ class StartTesting(APIView):
 
 
 class FinishTesting(APIView):
-    permission_classes = (AllowAny,)
+    permission_classes = (IsAuthenticated,)
 
     def post(self, request):
         session_uuid = request.data.get("session_uuid")
@@ -42,7 +44,7 @@ class FinishTesting(APIView):
 
 
 class UserAnswer(APIView):
-    permission_classes = (AllowAny,)
+    permission_classes = (IsAuthenticated,)
 
     def post(self, request):
         user = request.user
@@ -74,3 +76,15 @@ class UserAnswer(APIView):
         user_answer.answers.set(answers)
         user_answer.save()
         return Response({"message": "Result appended"}, status=status.HTTP_200_OK)
+
+
+class GetSelfAnswers(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request, **kwargs):
+        user = request.user
+        uuid_testing = kwargs.get("uuid_testing")
+        session_results = TestingSession.objects.filter(Q(user=user) & Q(testing__uuid_testing=uuid_testing))
+        serializer = ResultsSerializer(instance=session_results, many=True)
+        response = serializer.data
+        return Response(response, status=status.HTTP_200_OK)
