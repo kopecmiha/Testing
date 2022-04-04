@@ -73,6 +73,7 @@ class UpdateUserProfile(APIView):
         serializer_data = request.data
         if avatar:
             serializer_data.update({"avatar": avatar})
+        print(serializer_data)
         serializer = UserProfileSerializer(
             request.user, data=serializer_data, partial=True
         )
