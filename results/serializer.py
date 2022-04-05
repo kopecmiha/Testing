@@ -12,14 +12,6 @@ class ResultAnswerSerializer(serializers.ModelSerializer):
         extra_kwargs = {'uuid_answer': {'read_only': True}}
 
 
-class ResultQuestionUUIDSerializer(serializers.ModelSerializer):
-
-    class Meta(object):
-        model = Question
-        fields = "uuid_question",
-        extra_kwargs = {'uuid_question': {'read_only': True}}
-
-
 class UserAnswersSerializer(serializers.ModelSerializer):
     def _question(self, obj):
         return obj.question.uuid_question

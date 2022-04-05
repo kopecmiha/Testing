@@ -29,7 +29,7 @@ class CreateDekan(APIView):
                 serializer = DeanSingInSerializer(data=user)
                 serializer.is_valid(raise_exception=True)
                 serializer.save(password=make_password(user['password']), status="DEAN")
-                user = serializer.data
+                user = User.objects.get(username=user["username"])
                 payload = jwt_payload_handler(user)
                 token = jwt.encode(payload, settings.SECRET_KEY)
                 user_logged_in.send(sender=user.__class__,
