@@ -30,17 +30,12 @@ class Testing(models.Model):
 
 
 class Question(models.Model):
-    class TypeAnswerEnum(models.TextChoices):
-        CHECKBOX = "CHECKBOX", _("Checkbox")
-        RADIO = "RADIO", _("Radio button")
 
     text = models.CharField(blank=False, verbose_name=_("Question"), max_length=200)
     image = models.FileField(
         upload_to="test_images", verbose_name=_("Test image"), blank=True, null=True
     )
-    type_answer_question = models.CharField(
-        max_length=30, choices=TypeAnswerEnum.choices, default=TypeAnswerEnum.CHECKBOX
-    )
+    type_answer_question = models.BooleanField(default=False)
     testing = models.ForeignKey(
         to=Testing,
         on_delete=models.CASCADE,
