@@ -11,7 +11,7 @@ from rest_framework.views import APIView
 from rest_framework_jwt.serializers import jwt_payload_handler
 
 from accounts.models import InviteCode, User
-from accounts.permissions import IsTeacherOrDean
+from accounts.permissions import IsTeacherOrDean, IsDean
 from accounts.serializer import DeanSingInSerializer, UserSerializer, UserProfileSerializer
 from main import settings
 
@@ -73,7 +73,6 @@ class UpdateUserProfile(APIView):
         serializer_data = request.data
         if avatar:
             serializer_data.update({"avatar": avatar})
-        print(serializer_data)
         serializer = UserProfileSerializer(
             request.user, data=serializer_data, partial=True
         )
@@ -81,6 +80,15 @@ class UpdateUserProfile(APIView):
         serializer.save()
         response = serializer.data
         return Response(response, status=status.HTTP_200_OK)
+
+
+class DeleteUser(APIView):
+    permission_classes = (IsDean,)
+
+    def post(self, request):
+        uuid = request.data.get("user_uuid")
+        User.objects.filter(uuid=uuid).delete()
+        return Response("User successfully deleted", status=status.HTTP_200_OK)
 
 
 class GetStudents(APIView):

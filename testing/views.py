@@ -169,3 +169,11 @@ class DeleteAnswer(APIView):
             answer_to_delete.first().delete()
             return Response({"message": "Answer succesfully deleted"}, status=status.HTTP_200_OK)
         return Response({"message": "Nothing to delete"}, status=status.HTTP_404_NOT_FOUND)
+
+
+class LoadExcel(APIView):
+    permission_classes = (IsTeacherOrDean,)
+
+    def post(self, request):
+        test_file = request.data.get("excel")
+        return Response({"message": "Starting_load"}, status=status.HTTP_200_OK)
