@@ -152,10 +152,14 @@ class UpdateAnswer(APIView):
         uuid_answer = answer.get("uuid_answer")
         if not uuid_answer:
             return Response({"error": "Answer not found"}, status=status.HTTP_404_NOT_FOUND)
-        current_answer = Answer.objects.filter(uuid_answer=uuid_answer)
+        current_answer = Answer.objects.filter(uuid_answer=uuid_answer).first()
         if not current_answer:
             return Response({"error": "Answer not found"}, status=status.HTTP_404_NOT_FOUND)
-        serializer = AnswerSerializer(instance=current_answer.first(), data=answer, partial=True)
+        correct_answer = answer.get("correct_answer")
+        if correct_answer:
+            current_answer.correct_answer = correct_answer
+            current_answer.save()
+        serializer = AnswerSerializer(instance=current_answer, data=answer, partial=True)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         response = serializer.data
