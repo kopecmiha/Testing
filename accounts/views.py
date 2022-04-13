@@ -30,7 +30,7 @@ class CreateDekan(APIView):
                 serializer = DeanSingInSerializer(data=user)
                 serializer.is_valid(raise_exception=True)
                 serializer.save(password=make_password(user['password']), status="DEAN")
-                user = User.objects.get(username=user["username"])
+                user = User.objects.get(email=user["email"])
                 payload = jwt_payload_handler(user)
                 token = jwt.encode(payload, settings.SECRET_KEY)
                 user_logged_in.send(sender=user.__class__,
@@ -119,10 +119,11 @@ class ObtainToken(APIView):
         try:
             login = request.data['login']
             password = request.data['password']
-            if re.match(r"\b[\w.-]+@[\w.-]+.\w{2,4}\b", login) is not None:
+            try:
                 user = User.objects.get(email=login)
-            else:
-                user = User.objects.get(username=login)
+            except User.DoesNotExist:
+                return Response({"error": 'Please provide right login and a password'},
+                                status=status.HTTP_401_UNAUTHORIZED)
             if not user.check_password(password) or not user.is_active:
                 return Response({"error": 'Please provide right login and a password'},
                                 status=status.HTTP_401_UNAUTHORIZED)
