@@ -4,6 +4,7 @@ import jwt
 from django.contrib.auth import user_logged_in
 from django.contrib.auth.hashers import make_password
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.db.models import Q
 from rest_framework import status
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
@@ -87,7 +88,7 @@ class DeleteUser(APIView):
 
     def post(self, request):
         uuid = request.data.get("user_uuid")
-        User.objects.filter(uuid=uuid).delete()
+        User.objects.filter(Q(uuid=uuid) & Q(is_superuser=False)).delete()
         return Response("User successfully deleted", status=status.HTTP_200_OK)
 
 
@@ -95,7 +96,7 @@ class GetStudents(APIView):
     permission_classes = (IsAuthenticated,)
 
     def get(self, request):
-        users = User.objects.filter(status="STUDENT")
+        users = User.objects.filter(Q(status="STUDENT") & Q(is_superuser=False))
         serializer = UserProfileSerializer(users, many=True)
         response = serializer.data
         return Response(response, status=status.HTTP_200_OK)
@@ -105,7 +106,7 @@ class GetTeachers(APIView):
     permission_classes = (IsAuthenticated,)
 
     def get(self, request):
-        users = User.objects.filter(status="TEACHER")
+        users = User.objects.filter(Q(status="TEACHER") & Q(is_superuser=False))
         serializer = UserProfileSerializer(users, many=True)
         response = serializer.data
         return Response(response, status=status.HTTP_200_OK)
