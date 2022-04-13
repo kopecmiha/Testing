@@ -156,7 +156,7 @@ class UpdateAnswer(APIView):
         if not current_answer:
             return Response({"error": "Answer not found"}, status=status.HTTP_404_NOT_FOUND)
         correct_answer = answer.get("correct_answer")
-        if correct_answer:
+        if correct_answer is not None:
             current_answer.correct_answer = correct_answer
             current_answer.save()
         serializer = AnswerSerializer(instance=current_answer, data=answer, partial=True)
