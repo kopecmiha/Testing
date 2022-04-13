@@ -31,7 +31,7 @@ class Testing(models.Model):
 
 class Question(models.Model):
 
-    text = models.CharField(blank=False, verbose_name=_("Question"), max_length=200)
+    text = models.CharField(blank=True, null=True, verbose_name=_("Question"), max_length=200)
     image = models.FileField(
         upload_to="test_images", verbose_name=_("Test image"), blank=True, null=True
     )
@@ -63,7 +63,7 @@ class Question(models.Model):
 
 
 class Answer(models.Model):
-    text = models.CharField(blank=False, verbose_name=_("Answer"), max_length=128)
+    text = models.CharField(blank=True, null=True, verbose_name=_("Answer"), max_length=128)
     question = models.ForeignKey(
         to=Question,
         on_delete=models.CASCADE,

@@ -16,7 +16,7 @@ class CreateTest(APIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         test_uuid = str(serializer.data["uuid_testing"])
-        return Response({"message": "Test succesfully created", "uuid":test_uuid}, status=status.HTTP_201_CREATED)
+        return Response({"message": "Test succesfully created", "uuid": test_uuid}, status=status.HTTP_201_CREATED)
 
 
 class UpdateTest(APIView):
@@ -89,7 +89,8 @@ class CreateQuestion(APIView):
         serializer = QuestionSerializer(data=question)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response({"message": "Question succesfully created"}, status=status.HTTP_201_CREATED)
+        question = serializer.data
+        return Response({"message": "Question succesfully created", "question": question}, status=status.HTTP_201_CREATED)
 
 
 class UpdateQuestion(APIView):
@@ -139,7 +140,8 @@ class CreateAnswer(APIView):
         serializer = AnswerSerializer(data=answer)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response({"message": "Answer succesfully created"}, status=status.HTTP_201_CREATED)
+        answer = serializer.data
+        return Response({"message": "Answer succesfully created", "answer": answer}, status=status.HTTP_201_CREATED)
 
 
 class UpdateAnswer(APIView):
