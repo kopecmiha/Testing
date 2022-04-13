@@ -5,14 +5,14 @@ from .models import User
 class DeanSingInSerializer(serializers.ModelSerializer):
     class Meta(object):
         model = User
-        fields = "email",
+        fields = "first_name", "last_name", "patronymic", "email",
         extra_kwargs = {'password': {'write_only': True}}
 
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta(object):
         model = User
-        fields = "status", "email"
+        fields = "first_name", "last_name", "patronymic", "status", "email"
         extra_kwargs = {'password': {'write_only': True}}
 
 
