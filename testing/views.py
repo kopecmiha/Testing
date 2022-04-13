@@ -15,7 +15,8 @@ class CreateTest(APIView):
         serializer = TestingSerializer(data=test)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response({"message": "Test succesfully created"}, status=status.HTTP_201_CREATED)
+        test_uuid = str(serializer.data["uuid_testing"])
+        return Response({"message": "Test succesfully created", "uuid":test_uuid}, status=status.HTTP_201_CREATED)
 
 
 class UpdateTest(APIView):
