@@ -42,6 +42,6 @@ class TestingSerializer(serializers.ModelSerializer):
 
     class Meta(object):
         model = Testing
-        fields = "answer_time", "uuid_testing", "questions", "specialization", "discipline"
+        fields = "title", "answer_time", "uuid_testing", "questions", "specialization", "discipline"
         extra_kwargs = {'uuid_testing': {'read_only': True}, 'questions': {'read_only': True},
                         'specialization': {'read_only': True}, 'discipline': {'read_only': True}}
