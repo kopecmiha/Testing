@@ -11,8 +11,8 @@ url - /create_test/
 Запрос
 ```json
 {
-    "title":"SomeTest",
-    "subtitle":"SomeTest",
+    "specialization_id":1,
+    "discipline_id":1,
     "answer_time":240
 }
 ```
@@ -40,7 +40,7 @@ url - /update_test/
 Запрос
 ```json
 {
-    "title":"SomeTest2",
+    "specialization_id": 2,
     "uuid_testing":"af08d23b-e15d-4548-ae02-84a17c70482c"
 }
 ``` 
@@ -98,6 +98,7 @@ url - /create_question/
 ```json
 {
     "text":"Где находится тардагукащирдуня",
+    "competence_id": 1,
     "uuid_testing":"b8de46bc-2e98-460c-8ac5-90b6adbee1ff",
     "type_answer_question": "RADIO"
 }
@@ -127,6 +128,7 @@ url - /update_question/
 ```json
 {
     "text":"Где находится Эльбрус",
+    "competence_id": 2,
     "uuid_question": "90584a79-855c-4764-9247-2ae21734988c"
 }
 ``` 

@@ -12,12 +12,15 @@ class SpecializationSerializer(serializers.ModelSerializer):
 class CompetenceSerializer(serializers.ModelSerializer):
     class Meta(object):
         model = Competence
-        fields = "id", "description", "code"
+        fields = "id", "code"
         extra_kwargs = {'id': {'read_only': True}}
 
 
 class DisciplineSerializer(serializers.ModelSerializer):
+    competences = CompetenceSerializer(required=False, many=True)
+    specialization = SpecializationSerializer(required=False)
+
     class Meta(object):
         model = Discipline
-        fields = "id", "title",
-        extra_kwargs = {'id': {'read_only': True}}
+        fields = "id", "title", "competences", "specialization"
+        extra_kwargs = {'id': {'read_only': True}, 'competences': {'read_only': True}, 'specialization': {'read_only': True}}

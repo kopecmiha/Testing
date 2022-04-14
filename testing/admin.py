@@ -8,9 +8,9 @@ class TestingAdmin(admin.ModelAdmin):
     Testing
     """
 
-    list_display = "id", "uuid_testing", "title", "subtitle"
-    list_display_links = "id", "uuid_testing", "title"
-    search_fields = "id", "title", "subtitle"
+    list_display = "id", "uuid_testing", "specialization", "discipline"
+    list_display_links = "id", "uuid_testing", "specialization", "discipline"
+    search_fields = "id", "specialization", "discipline"
 
 
 @admin.register(Question)

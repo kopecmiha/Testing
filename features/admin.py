@@ -19,9 +19,9 @@ class CompetenceAdmin(admin.ModelAdmin):
     Competence
     """
 
-    list_display = "id", "description", "code"
-    list_display_links = "id", "description", "code"
-    search_fields = "id", "description", "code"
+    list_display = "id", "code"
+    list_display_links = "id", "code"
+    search_fields = "id", "code"
 
 
 @admin.register(Discipline)

@@ -91,9 +91,24 @@ class DisciplineViewSet(viewsets.ViewSet):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def create(self, request):
-        serializer = DisciplineSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
+        data = request.data
+        competences = []
+        specialization_id = data.get("specialization_id")
+        if specialization_id is not None:
+            try:
+                data["specialization"] = Specialization.objects.get(pk=specialization_id)
+                del data["specialization_id"]
+            except Specialization.DoesNotExist:
+                return Response({"error": "Specialization not found"}, status=status.HTTP_404_NOT_FOUND)
+        competences_ids = request.data.get("competences_ids")
+        if competences_ids is not None:
+            competences = Competence.objects.filter(pk__in=competences_ids)
+            del request.data["competences_ids"]
+        discipline = Discipline.objects.create(**request.data)
+        for competence in competences:
+            discipline.competences.add(competence)
+            discipline.save()
+        serializer = DisciplineSerializer(instance=discipline)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def retrieve(self, request, pk=None):
@@ -105,8 +120,22 @@ class DisciplineViewSet(viewsets.ViewSet):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def update(self, request, pk=None):
+        data = request.data
+        specialization_id = data.get("specialization_id")
+        competences_ids = request.data.get("competences_ids")
         try:
             result = Discipline.objects.get(pk=pk)
+            if specialization_id is not None:
+                try:
+                    result.specialization = Specialization.objects.get(pk=specialization_id)
+                except Specialization.DoesNotExist:
+                    return Response({"error": "Specialization not found"}, status=status.HTTP_404_NOT_FOUND)
+            if competences_ids is not None:
+                competences = Competence.objects.filter(pk__in=competences_ids)
+                result.competences.clear()
+                for competence in competences:
+                    result.competences.add(competence)
+                    result.save()
         except Discipline.DoesNotExist:
             return Response({"message": "Discipline not found"}, status=status.HTTP_404_NOT_FOUND)
         serializer = DisciplineSerializer(instance=result, data=request.data)

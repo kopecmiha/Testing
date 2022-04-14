@@ -13,7 +13,6 @@ class Specialization(models.Model):
 
 
 class Competence(models.Model):
-    description = models.CharField(_("Title"), blank=True, unique=True, max_length=1000)
     code = models.CharField(_("Code"), blank=True, unique=True, max_length=10)
     objects = models.Manager()
 
@@ -23,7 +22,18 @@ class Competence(models.Model):
 
 
 class Discipline(models.Model):
-    title = models.CharField(_("Code"), blank=True, unique=True, max_length=100)
+    title = models.CharField(_("Title"), blank=True, max_length=100)
+    specialization = models.ForeignKey(
+        on_delete=models.CASCADE,
+        to=Specialization,
+        null=True,
+        blank=True,
+        verbose_name=_("Specialization"),
+    )
+    competences = models.ManyToManyField(
+        to=Competence,
+        verbose_name=_("Competences"),
+    )
     objects = models.Manager()
 
     class Meta:

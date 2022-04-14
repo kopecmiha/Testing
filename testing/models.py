@@ -3,13 +3,24 @@ from uuid import uuid4
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
+from features.models import Specialization, Discipline, Competence
+
 
 class Testing(models.Model):
-    title = models.CharField(
-        null=True, blank=True, verbose_name=_("Title"), max_length=128
+    title = models.CharField(blank=True, null=True, verbose_name=_("Title"), max_length=200)
+    specialization = models.ForeignKey(
+        to=Specialization,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        verbose_name=_("Specialization"),
     )
-    subtitle = models.CharField(
-        verbose_name=_("Description"), null=True, blank=True, max_length=128
+    discipline = models.ForeignKey(
+        to=Discipline,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        verbose_name=_("Discipline"),
     )
     answer_time = models.PositiveIntegerField(verbose_name=_("Answer time"), default=0)
     uuid_testing = models.UUIDField(
@@ -30,7 +41,6 @@ class Testing(models.Model):
 
 
 class Question(models.Model):
-
     text = models.CharField(blank=True, null=True, verbose_name=_("Question"), max_length=200)
     image = models.FileField(
         upload_to="test_images", verbose_name=_("Test image"), blank=True, null=True
@@ -42,6 +52,13 @@ class Question(models.Model):
         null=True,
         blank=True,
         verbose_name=_("Test"),
+    )
+    competence = models.ForeignKey(
+        to=Competence,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        verbose_name=_("Competence"),
     )
     uuid_question = models.UUIDField(
         default=uuid4,
