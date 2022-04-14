@@ -105,7 +105,7 @@ class UpdateQuestion(APIView):
             current_question = Question.objects.get(uuid_question=uuid_question)
         except Question.DoesNotExist:
             return Response({"error": "Question not found"}, status=status.HTTP_404_NOT_FOUND)
-        if current_question.type_answer_question and question.get("type_answer_question") == False:
+        if question.get("type_answer_question") is not None:
             current_question.answer_set.all().update(correct_answer=False)
         serializer = QuestionSerializer(instance=current_question, data=question, partial=True)
         serializer.is_valid(raise_exception=True)
