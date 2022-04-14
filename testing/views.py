@@ -13,18 +13,9 @@ class CreateTest(APIView):
 
     def post(self, request):
         test = request.data
-        specialization_id = test.get("specialization_id")
-        discipline_id = test.get("discipline_id")
-        try:
-            test["specialization"] = Specialization.objects.get(pk=specialization_id)
-        except Specialization.DoesNotExist:
-            return Response({"error": "Specialization not found"}, status=status.HTTP_404_NOT_FOUND)
-        try:
-            test["discipline"] = Discipline.objects.get(pk=discipline_id)
-        except Discipline.DoesNotExist:
-            return Response({"error": "Discipline not found"}, status=status.HTTP_404_NOT_FOUND)
-        new_test = Testing.objects.create(**test)
-        serializer = TestingSerializer(instance=new_test)
+        serializer = TestingSerializer(data=test)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
         test_uuid = str(serializer.data["uuid_testing"])
         return Response({"message": "Test succesfully created", "uuid": test_uuid}, status=status.HTTP_201_CREATED)
 
@@ -105,25 +96,16 @@ class CreateQuestion(APIView):
     def post(self, request):
         question = request.data
         uuid_testing = question.get("uuid_testing")
-        competence_id = question.get("competence_id")
         if not uuid_testing:
             return Response({"error": "Testing not specified"}, status=status.HTTP_400_BAD_REQUEST)
         try:
             testing = Testing.objects.get(uuid_testing=uuid_testing)
         except Testing.DoesNotExist:
             return Response({"error": "Testing not found"}, status=status.HTTP_404_NOT_FOUND)
-        if not competence_id:
-            return Response({"error": "Competence not specified"}, status=status.HTTP_400_BAD_REQUEST)
-        try:
-            competence = Competence.objects.get(pk=competence_id)
-        except Competence.DoesNotExist:
-            return Response({"error": "Competence not found"}, status=status.HTTP_404_NOT_FOUND)
-        question["testing"] = testing
-        del question["uuid_testing"]
-        question["competence"] = competence
-        del question["competence_id"]
-        new_question = Question.objects.create(**question)
-        serializer = QuestionSerializer(instance=new_question)
+        question["testing"] = testing.id
+        serializer = QuestionSerializer(data=question)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
         question = serializer.data
         return Response({"message": "Question succesfully created", "question": question}, status=status.HTTP_201_CREATED)
 
