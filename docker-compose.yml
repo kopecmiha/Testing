@@ -12,7 +12,7 @@ services:
       POSTGRES_USER: ${DATABASE_PASSWORD}
       POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
 
-  web:
+  application:
     build:
       context: ./
       dockerfile: Dockerfile
@@ -42,7 +42,7 @@ services:
       - static:/app/static
       - media:/app/media
     depends_on:
-      - web
+      - application
     networks:
       - app_network
       - server
