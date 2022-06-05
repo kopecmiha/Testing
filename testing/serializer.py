@@ -30,7 +30,7 @@ class QuestionSerializer(serializers.ModelSerializer):
         extra_kwargs = {'uuid_question': {'read_only': True},
                         'image': {'read_only': True},
                         'answers': {'read_only': True},
-                        'testing': {'write_only': True},
+                        'testing_array': {'write_only': True},
                         'competence': {'read_only': True}
                         }
 

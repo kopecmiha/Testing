@@ -99,10 +99,10 @@ class CreateQuestion(APIView):
         if not uuid_testing:
             return Response({"error": "Testing not specified"}, status=status.HTTP_400_BAD_REQUEST)
         try:
-            testing = Testing.objects.get(uuid_testing=uuid_testing)
+            Testing.objects.get(uuid_testing=uuid_testing)
         except Testing.DoesNotExist:
             return Response({"error": "Testing not found"}, status=status.HTTP_404_NOT_FOUND)
-        question["testing"] = testing.id
+        question["testing_array"] = [uuid_testing]
         serializer = QuestionSerializer(data=question)
         serializer.is_valid(raise_exception=True)
         serializer.save()
