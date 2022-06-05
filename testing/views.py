@@ -210,3 +210,11 @@ class LoadExcel(APIView):
     def post(self, request):
         test_file = request.data.get("excel")
         return Response({"message": "Starting_load"}, status=status.HTTP_200_OK)
+
+
+class Refor(APIView):
+    def get(self, request):
+        questions = Question.objects.all()
+        for q in questions:
+            q.reforeign()
+        return Response({"message": "OK"}, status=status.HTTP_200_OK)

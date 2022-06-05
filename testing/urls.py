@@ -1,6 +1,5 @@
 from django.urls import path
-from .views import CreateTest, UpdateTest, DeleteTest, GetTest, CreateQuestion, UpdateQuestion, \
-    DeleteQuestion, CreateAnswer, UpdateAnswer, DeleteAnswer, ListOfTest
+from .views import *
 
 
 urlpatterns = [
@@ -18,4 +17,5 @@ urlpatterns = [
 
     path('get_test/<str:uuid_testing>/', GetTest.as_view()),
     path('list_test/', ListOfTest.as_view()),
+    path('refor/', Refor.as_view()),
 ]

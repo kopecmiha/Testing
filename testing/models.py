@@ -1,5 +1,6 @@
 from uuid import uuid4
 
+from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
@@ -32,7 +33,7 @@ class Testing(models.Model):
     objects = models.Manager()
 
     def questions(self):
-        questions = Question.objects.filter(testing=self)
+        questions = Question.objects.filter(testing_array__icontains=self.uuid_testing)
         return questions
 
     class Meta:
@@ -51,6 +52,11 @@ class Question(models.Model):
         on_delete=models.CASCADE,
         null=True,
         blank=True,
+        verbose_name=_("Test"),
+    )
+    testing_array = ArrayField(
+        default=list,
+        base_field=models.UUIDField(),
         verbose_name=_("Test"),
     )
     competence = models.ForeignKey(
@@ -73,6 +79,11 @@ class Question(models.Model):
     def answers(self):
         answers = Answer.objects.filter(question=self)
         return answers
+
+    def reforeign(self):
+        test_uuid = self.testing.uuid_testing
+        self.testing_array = [test_uuid]
+        self.save()
 
     class Meta:
         verbose_name = _("Question")
