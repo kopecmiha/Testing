@@ -37,7 +37,8 @@ MODULES = [
     'accounts',
     'testing',
     'results',
-    'features'
+    'features',
+    'umkd_api'
 ]
 
 INSTALLED_APPS = [

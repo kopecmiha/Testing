@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Specialization, Competence, Discipline
+from .models import Specialization, Competence, Discipline, Indicator
 
 
 @admin.register(Specialization)
@@ -19,9 +19,20 @@ class CompetenceAdmin(admin.ModelAdmin):
     Competence
     """
 
-    list_display = "id", "code"
-    list_display_links = "id", "code"
-    search_fields = "id", "code"
+    list_display = "id", "code", "description"
+    list_display_links = "id", "code", "description"
+    search_fields = "id", "code", "description"
+
+
+@admin.register(Indicator)
+class IndicatorAdmin(admin.ModelAdmin):
+    """
+    Indicator
+    """
+
+    list_display = "id", "code", "description"
+    list_display_links = "id", "code", "description"
+    search_fields = "id", "code", "description"
 
 
 @admin.register(Discipline)

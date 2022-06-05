@@ -20,11 +20,13 @@ from accounts import urls as account_urls
 from testing import urls as testing_urls
 from results import urls as results_urls
 from features import urls as features_urls
+from umkd_api import urls as umkd_urls
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('user/', include(account_urls)),
     path('test/', include(testing_urls)),
     path('results/', include(results_urls)),
-    path('features/', include(features_urls))
+    path('features/', include(features_urls)),
+    path('umkd/', include(umkd_urls))
 ]

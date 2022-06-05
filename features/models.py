@@ -14,11 +14,30 @@ class Specialization(models.Model):
 
 class Competence(models.Model):
     code = models.CharField(_("Code"), blank=True, unique=True, max_length=10)
+    description = models.TextField(verbose_name=_("Name"), blank=True)
     objects = models.Manager()
 
     class Meta:
         verbose_name = _("Competence")
         verbose_name_plural = _("Competences")
+
+    def __str__(self):
+        return self.code
+
+
+class Indicator(models.Model):
+    code = models.CharField(_("Code"), blank=True, unique=True, max_length=10)
+    description = models.TextField(verbose_name=_("Name"), blank=True)
+    competences = models.ForeignKey(
+        to=Competence,
+        on_delete=models.CASCADE,
+        verbose_name=_("Competence"),
+    )
+    objects = models.Manager()
+
+    class Meta:
+        verbose_name = _("Indicator")
+        verbose_name_plural = _("Indicator")
 
 
 class Discipline(models.Model):
