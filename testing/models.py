@@ -47,13 +47,6 @@ class Question(models.Model):
         upload_to="test_images", verbose_name=_("Test image"), blank=True, null=True
     )
     type_answer_question = models.BooleanField(default=False)
-    testing = models.ForeignKey(
-        to=Testing,
-        on_delete=models.CASCADE,
-        null=True,
-        blank=True,
-        verbose_name=_("Test"),
-    )
     testing_array = ArrayField(
         default=list,
         base_field=models.UUIDField(),
