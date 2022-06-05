@@ -32,4 +32,4 @@ class AnswerAdmin(admin.ModelAdmin):
 
     list_display = "id", "uuid_answer", "text"
     list_display_links = "id", "uuid_answer", "text"
-    search_fields = "id", "uuid_testing", "text"
+    search_fields = "id", "uuid_answer", "text"

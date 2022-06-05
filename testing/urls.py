@@ -1,7 +1,6 @@
 from django.urls import path
 from .views import *
 
-
 urlpatterns = [
     path('create_test/', CreateTest.as_view()),
     path('update_test/', UpdateTest.as_view()),
@@ -17,5 +16,5 @@ urlpatterns = [
 
     path('get_test/<str:uuid_testing>/', GetTest.as_view()),
     path('list_test/', ListOfTest.as_view()),
-    path('refor/', Refor.as_view()),
+    path('add_questions_from_bank/', AddQuestionsFromBank.as_view()),
 ]

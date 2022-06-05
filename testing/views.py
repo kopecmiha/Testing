@@ -1,5 +1,8 @@
 import uuid
 
+from django.db.models import Q, F
+from django.db.models.expressions import CombinedExpression, Value
+from django.db.models.query import QuerySet
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -110,7 +113,8 @@ class CreateQuestion(APIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         question = serializer.data
-        return Response({"message": "Question succesfully created", "question": question}, status=status.HTTP_201_CREATED)
+        return Response({"message": "Question succesfully created", "question": question},
+                        status=status.HTTP_201_CREATED)
 
 
 class UpdateQuestion(APIView):
@@ -207,17 +211,18 @@ class DeleteAnswer(APIView):
         return Response({"message": "Nothing to delete"}, status=status.HTTP_404_NOT_FOUND)
 
 
-class LoadExcel(APIView):
+class AddQuestionsFromBank(APIView):
     permission_classes = (IsTeacherOrDean,)
 
     def post(self, request):
-        test_file = request.data.get("excel")
-        return Response({"message": "Starting_load"}, status=status.HTTP_200_OK)
-
-
-class Refor(APIView):
-    def get(self, request):
-        questions = Question.objects.all()
-        for q in questions:
-            q.reforeign()
-        return Response({"message": "OK"}, status=status.HTTP_200_OK)
+        uuid_testing = request.data.get("uuid_testing")
+        competence_id = request.data.get("competence_id")
+        questions_count = request.data.get("questions_count")
+        questions_id_list = Question.objects.filter(competence=competence_id).values_list('pk', flat=True).order_by("?")[:questions_count]
+        questions = Question.objects.filter(pk__in=list(questions_id_list))
+        try:
+            Testing.objects.get(uuid_testing=uuid_testing)
+        except Testing.DoesNotExist:
+            return Response({"error": "Testing not found"}, status=status.HTTP_404_NOT_FOUND)
+        questions.update(testing_array=CombinedExpression(F('testing_array'), '||', Value([uuid.UUID(uuid_testing)])))
+        return Response({"message": "Questions succesfully added"}, status=status.HTTP_200_OK)

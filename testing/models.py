@@ -73,11 +73,6 @@ class Question(models.Model):
         answers = Answer.objects.filter(question=self)
         return answers
 
-    def reforeign(self):
-        test_uuid = self.testing.uuid_testing
-        self.testing_array = [test_uuid]
-        self.save()
-
     class Meta:
         verbose_name = _("Question")
         verbose_name_plural = _("Question")

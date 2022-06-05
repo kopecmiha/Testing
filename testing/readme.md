@@ -345,3 +345,29 @@ url - /list_test/
 ]
 ```
 ***
+
+***
+
+#####Добавить вопросы из банка
+Метод POST  
+Требует авторизации  
+url - /add_questions_from_bank/
+***
+Запрос
+```json
+{
+    "competence_id": 2,
+    "questions_count": 2,
+    "uuid_testing": "9f953858-7153-4ef0-8f82-e22ebb6098a2"
+}
+```
+questions_count - колличество добаляемых вопросов
+competence_id - id соответствующей компетенции
+
+Ответ
+```json
+{
+    "message": "Questions succesfully added"
+}
+```
+***
