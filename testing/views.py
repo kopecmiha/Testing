@@ -1,3 +1,5 @@
+import uuid
+
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -102,7 +104,8 @@ class CreateQuestion(APIView):
             Testing.objects.get(uuid_testing=uuid_testing)
         except Testing.DoesNotExist:
             return Response({"error": "Testing not found"}, status=status.HTTP_404_NOT_FOUND)
-        question["testing_array"] = [uuid_testing]
+        question["testing_array"] = [uuid.UUID(uuid_testing)]
+        print(question)
         serializer = QuestionSerializer(data=question)
         serializer.is_valid(raise_exception=True)
         serializer.save()

@@ -26,7 +26,7 @@ class QuestionSerializer(serializers.ModelSerializer):
 
     class Meta(object):
         model = Question
-        fields = "text", "type_answer_question", "uuid_question", "answers", "testing", "competence"
+        fields = "text", "type_answer_question", "uuid_question", "answers", "testing_array", "competence"
         extra_kwargs = {'uuid_question': {'read_only': True},
                         'image': {'read_only': True},
                         'answers': {'read_only': True},
