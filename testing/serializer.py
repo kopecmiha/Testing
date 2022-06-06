@@ -7,9 +7,9 @@ from .models import Testing, Question, Answer
 class AnswerSerializer(serializers.ModelSerializer):
 
     def _correct_answer(self, obj):
-        user_status = self.context.get("user_status")
-        if user_status == "STUDENT":
-            return None
+        status = self.context.get("get_test")
+        if status:
+            return False
         return obj.correct_answer
 
     correct_answer = serializers.SerializerMethodField("_correct_answer")
