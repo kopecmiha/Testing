@@ -76,10 +76,11 @@ class GetTest(APIView):
 
     def get(self, request, **kwargs):
         user_status = request.user.status
-        uuid_testing = kwargs.get("uuid_testing")
+        uuid_testing = kwargs.get("uuid_testing", False)
+        mode = kwargs.get("mode")
         testing = Testing.objects.filter(uuid_testing=uuid_testing)
         if testing:
-            serializer = TestingSerializer(instance=testing.first(), context={"user_status": user_status})
+            serializer = TestingSerializer(instance=testing.first(), context={"mode": mode})
             response = serializer.data
             return Response(response, status=status.HTTP_200_OK)
         return Response({"message": "Test not found"}, status=status.HTTP_404_NOT_FOUND)
