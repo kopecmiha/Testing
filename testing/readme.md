@@ -11,8 +11,6 @@ url - /create_test/
 Запрос
 ```json
 {
-    "specialization_id":1,
-    "discipline_id":1,
     "answer_time":240
 }
 ```
@@ -98,7 +96,6 @@ url - /create_question/
 ```json
 {
     "text":"Где находится тардагукащирдуня",
-    "competence_id": 1,
     "uuid_testing":"b8de46bc-2e98-460c-8ac5-90b6adbee1ff",
     "type_answer_question": "RADIO"
 }

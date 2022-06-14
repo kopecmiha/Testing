@@ -8,8 +8,8 @@ class TestingAdmin(admin.ModelAdmin):
     Testing
     """
 
-    list_display = "id", "uuid_testing", "specialization", "discipline"
-    list_display_links = "id", "uuid_testing", "specialization", "discipline"
+    list_display = "id", "uuid_testing", "specialization"
+    list_display_links = "id", "uuid_testing", "specialization"
     search_fields = "id", "specialization", "discipline"
 
 

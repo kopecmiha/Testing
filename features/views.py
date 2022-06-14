@@ -1,7 +1,9 @@
 from django.shortcuts import render
 from rest_framework import viewsets, mixins, status
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
+from accounts.permissions import IsTeacherOrDean
 from .models import Specialization, Competence, Discipline
 from .serializer import SpecializationSerializer, DisciplineSerializer, CompetenceSerializer
 
@@ -52,9 +54,16 @@ class CompetenceViewSet(viewsets.ViewSet):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def create(self, request):
-        serializer = CompetenceSerializer(data=request.data)
+        data = request.data
+        specialization_id = data.get("specialization_id")
+        if specialization_id is not None:
+            try:
+                specialization = Specialization.objects.get(pk=specialization_id)
+            except Specialization.DoesNotExist:
+                return Response({"error": "Specialization not found"}, status=status.HTTP_404_NOT_FOUND)
+        serializer = CompetenceSerializer(data=data)
         serializer.is_valid(raise_exception=True)
-        serializer.save()
+        serializer.save(specialization=specialization)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def retrieve(self, request, pk=None):
@@ -66,10 +75,20 @@ class CompetenceViewSet(viewsets.ViewSet):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def update(self, request, pk=None):
+        data = request.data
         try:
             result = Competence.objects.get(pk=pk)
         except Competence.DoesNotExist:
             return Response({"message": "Competence not found"}, status=status.HTTP_404_NOT_FOUND)
+        specialization_id = request.data.get("specialization_id")
+        if specialization_id is not None:
+            try:
+                specialization = Specialization.objects.get(pk=specialization_id)
+                result.specialization = specialization
+                result.save()
+                del data["specialization_id"]
+            except Specialization.DoesNotExist:
+                return Response({"error": "Specialization not found"}, status=status.HTTP_404_NOT_FOUND)
         serializer = CompetenceSerializer(instance=result, data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
@@ -150,3 +169,28 @@ class DisciplineViewSet(viewsets.ViewSet):
             return Response({"message": "Discipline not found"}, status=status.HTTP_404_NOT_FOUND)
         result.delete()
         return Response('Discipline deleted', status=status.HTTP_200_OK)
+
+
+class CompetenceSetByDiscipline(APIView):
+    permission_classes = (IsTeacherOrDean,)
+
+    def get(self, request, **kwargs):
+        discipline_id = kwargs.get("discipline_id")
+        if discipline_id:
+            try:
+                discipline = Discipline.objects.get(pk=discipline_id)
+            except Discipline.DoesNotExist:
+                return Response({"message": "Discipline not found"}, status=status.HTTP_404_NOT_FOUND)
+        competences = discipline.competences
+        serializer = CompetenceSerializer(competences, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class CompetenceSetBySpecialization(APIView):
+    permission_classes = (IsTeacherOrDean,)
+
+    def get(self, request, **kwargs):
+        specialization_id = kwargs.get("specialization_id")
+        competences = Competence.objects.filter(specialization__pk=specialization_id)
+        serializer = CompetenceSerializer(competences, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)

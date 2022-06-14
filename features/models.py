@@ -15,6 +15,13 @@ class Specialization(models.Model):
 class Competence(models.Model):
     code = models.CharField(_("Code"), blank=True, unique=True, max_length=10)
     description = models.TextField(verbose_name=_("Name"), blank=True)
+    specialization = models.ForeignKey(
+        on_delete=models.CASCADE,
+        to=Specialization,
+        null=True,
+        blank=True,
+        verbose_name=_("Specialization"),
+    )
     objects = models.Manager()
 
     class Meta:
@@ -23,21 +30,6 @@ class Competence(models.Model):
 
     def __str__(self):
         return self.code
-
-
-class Indicator(models.Model):
-    code = models.CharField(_("Code"), blank=True, unique=True, max_length=10)
-    description = models.TextField(verbose_name=_("Name"), blank=True)
-    competence = models.ForeignKey(
-        to=Competence,
-        on_delete=models.CASCADE,
-        verbose_name=_("Competence"),
-    )
-    objects = models.Manager()
-
-    class Meta:
-        verbose_name = _("Indicator")
-        verbose_name_plural = _("Indicator")
 
 
 class Discipline(models.Model):

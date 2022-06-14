@@ -109,7 +109,6 @@ class CreateQuestion(APIView):
         except Testing.DoesNotExist:
             return Response({"error": "Testing not found"}, status=status.HTTP_404_NOT_FOUND)
         question["testing_array"] = [uuid.UUID(uuid_testing)]
-        print(question)
         serializer = QuestionSerializer(data=question)
         serializer.is_valid(raise_exception=True)
         serializer.save()

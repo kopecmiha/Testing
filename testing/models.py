@@ -16,13 +16,6 @@ class Testing(models.Model):
         blank=True,
         verbose_name=_("Specialization"),
     )
-    discipline = models.ForeignKey(
-        to=Discipline,
-        on_delete=models.CASCADE,
-        null=True,
-        blank=True,
-        verbose_name=_("Discipline"),
-    )
     answer_time = models.PositiveIntegerField(verbose_name=_("Answer time"), default=0)
     uuid_testing = models.UUIDField(
         default=uuid4,

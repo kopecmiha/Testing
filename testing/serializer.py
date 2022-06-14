@@ -38,10 +38,8 @@ class QuestionSerializer(serializers.ModelSerializer):
 class TestingSerializer(serializers.ModelSerializer):
     questions = QuestionSerializer(many=True, required=False)
     specialization = SpecializationSerializer(required=False)
-    discipline = DisciplineSerializer(required=False)
 
     class Meta(object):
         model = Testing
-        fields = "title", "answer_time", "uuid_testing", "questions", "specialization", "discipline"
-        extra_kwargs = {'uuid_testing': {'read_only': True}, 'questions': {'read_only': True},
-                        'specialization': {'read_only': True}, 'discipline': {'read_only': True}}
+        fields = "title", "answer_time", "uuid_testing", "questions", "specialization"
+        extra_kwargs = {'uuid_testing': {'read_only': True}, 'questions': {'read_only': True}}
