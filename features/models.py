@@ -28,7 +28,7 @@ class Competence(models.Model):
 class Indicator(models.Model):
     code = models.CharField(_("Code"), blank=True, unique=True, max_length=10)
     description = models.TextField(verbose_name=_("Name"), blank=True)
-    competences = models.ForeignKey(
+    competence = models.ForeignKey(
         to=Competence,
         on_delete=models.CASCADE,
         verbose_name=_("Competence"),
