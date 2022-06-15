@@ -16,5 +16,6 @@ urlpatterns = [
 
     path('get_test/<str:uuid_testing>/<int:mode>/', GetTest.as_view()),
     path('list_test/', ListOfTest.as_view()),
-    path('add_questions_from_bank/', AddQuestionsFromBank.as_view()),
+    path('add_questions_from_bank_by_competence/', AddQuestionsFromBankByCompetence.as_view()),
+    path('add_questions_from_bank_by_discipline/', AddQuestionsFromBankByDiscipline.as_view()),
 ]

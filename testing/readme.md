@@ -345,10 +345,10 @@ url - /list_test/
 
 ***
 
-#####Добавить вопросы из банка
+#####Добавить вопросы из банка по компетенции
 Метод POST  
 Требует авторизации  
-url - /add_questions_from_bank/
+url - /add_questions_from_bank_by_competence/
 ***
 Запрос
 ```json
@@ -356,6 +356,39 @@ url - /add_questions_from_bank/
     "competence_id": 2,
     "questions_count": 2,
     "uuid_testing": "9f953858-7153-4ef0-8f82-e22ebb6098a2"
+}
+```
+questions_count - колличество добаляемых вопросов
+competence_id - id соответствующей компетенции
+
+Ответ
+```json
+{
+    "message": "Questions succesfully added"
+}
+```
+***
+
+#####Добавить вопросы из банка по дисциплине
+Метод POST  
+Требует авторизации  
+url - /add_questions_from_bank_by_discipline/
+***
+Запрос
+```json
+{
+    "uuid_testing":"f2b523fa-4347-41b7-b26a-f0891ed93518",
+    "query_by_competence": [
+            {
+                "competence_id": 1,
+                "query_count": 3
+            },
+            {
+                "competence_id": 2,
+                "query_count": 3
+            }
+
+        ]
 }
 ```
 questions_count - колличество добаляемых вопросов

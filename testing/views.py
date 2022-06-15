@@ -211,7 +211,7 @@ class DeleteAnswer(APIView):
         return Response({"message": "Nothing to delete"}, status=status.HTTP_404_NOT_FOUND)
 
 
-class AddQuestionsFromBank(APIView):
+class AddQuestionsFromBankByCompetence(APIView):
     permission_classes = (IsTeacherOrDean,)
 
     def post(self, request):
@@ -220,6 +220,39 @@ class AddQuestionsFromBank(APIView):
         questions_count = request.data.get("questions_count")
         questions_id_list = Question.objects.filter(competence=competence_id).values_list('pk', flat=True).order_by("?")[:questions_count]
         questions = Question.objects.filter(pk__in=list(questions_id_list))
+        try:
+            Testing.objects.get(uuid_testing=uuid_testing)
+        except Testing.DoesNotExist:
+            return Response({"error": "Testing not found"}, status=status.HTTP_404_NOT_FOUND)
+        questions.update(testing_array=CombinedExpression(F('testing_array'), '||', Value([uuid.UUID(uuid_testing)])))
+        return Response({"message": "Questions succesfully added"}, status=status.HTTP_200_OK)
+
+
+class AddQuestionsFromBankByDiscipline(APIView):
+    permission_classes = (IsTeacherOrDean,)
+
+    def post(self, request):
+        uuid_testing = request.data.get("uuid_testing")
+        #discipline_id = request.data.get("discipline_id")
+        query_by_competence = [
+            {
+                "competence_id": 1,
+                "query_count": 3
+            },
+            {
+                "competence_id": 2,
+                "query_count": 3
+            }
+
+        ]
+        query_by_competence = request.data.get("query_by_competence")
+        questions_id_list = list()
+        for competence in query_by_competence:
+            questions_by_competence = Question.objects.filter(
+                competence=competence["competence_id"]
+            ).values_list('pk', flat=True).order_by("?")[:competence["query_count"]]
+            questions_id_list = questions_id_list + list(questions_by_competence)
+        questions = Question.objects.filter(pk__in=questions_id_list)
         try:
             Testing.objects.get(uuid_testing=uuid_testing)
         except Testing.DoesNotExist:
