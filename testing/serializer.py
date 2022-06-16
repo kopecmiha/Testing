@@ -36,10 +36,19 @@ class QuestionSerializer(serializers.ModelSerializer):
 
 
 class TestingSerializer(serializers.ModelSerializer):
-    questions = QuestionSerializer(many=True, required=False)
     specialization = SpecializationSerializer(required=False)
+    questions = QuestionSerializer(many=True, required=False)
 
     class Meta(object):
         model = Testing
         fields = "title", "answer_time", "uuid_testing", "questions", "specialization"
         extra_kwargs = {'uuid_testing': {'read_only': True}, 'questions': {'read_only': True}}
+
+
+class TestingSerializerList(serializers.ModelSerializer):
+    specialization = SpecializationSerializer(required=False)
+
+    class Meta(object):
+        model = Testing
+        fields = "title", "answer_time", "uuid_testing", "specialization"
+        extra_kwargs = {'uuid_testing': {'read_only': True}}

@@ -10,7 +10,7 @@ from rest_framework.views import APIView
 from accounts.permissions import IsTeacherOrDean
 from features.models import Competence, Specialization, Discipline
 from testing.models import Testing, Question, Answer
-from testing.serializer import TestingSerializer, AnswerSerializer, QuestionSerializer
+from testing.serializer import TestingSerializer, AnswerSerializer, QuestionSerializer, TestingSerializerList
 
 
 class CreateTest(APIView):
@@ -91,7 +91,7 @@ class ListOfTest(APIView):
 
     def get(self, request):
         testings = Testing.objects.all()
-        serializer = TestingSerializer(instance=testings, many=True)
+        serializer = TestingSerializerList(instance=testings, many=True)
         response = serializer.data
         return Response(response, status=status.HTTP_200_OK)
 
@@ -150,11 +150,14 @@ class DeleteQuestion(APIView):
 
     def post(self, request):
         uuid_question = request.data.get("uuid_question")
-        question_to_delete = Question.objects.filter(uuid_question=uuid_question)
-        if question_to_delete:
-            question_to_delete.first().delete()
+        uuid_testing = request.data.get("uuid_testing")
+        try:
+            question_to_delete = Question.objects.get(uuid_question=uuid_question)
+            question_to_delete.testing_array.remove(uuid.UUID(uuid_testing))
+            question_to_delete.save()
             return Response({"message": "Question succesfully deleted"}, status=status.HTTP_200_OK)
-        return Response({"message": "Nothing to delete"}, status=status.HTTP_404_NOT_FOUND)
+        except Question.DoesNotExist:
+            return Response({"message": "Nothing to delete"}, status=status.HTTP_404_NOT_FOUND)
 
 
 class CreateAnswer(APIView):
@@ -234,17 +237,6 @@ class AddQuestionsFromBankByDiscipline(APIView):
     def post(self, request):
         uuid_testing = request.data.get("uuid_testing")
         #discipline_id = request.data.get("discipline_id")
-        query_by_competence = [
-            {
-                "competence_id": 1,
-                "query_count": 3
-            },
-            {
-                "competence_id": 2,
-                "query_count": 3
-            }
-
-        ]
         query_by_competence = request.data.get("query_by_competence")
         questions_id_list = list()
         for competence in query_by_competence:

@@ -194,3 +194,13 @@ class CompetenceSetBySpecialization(APIView):
         competences = Competence.objects.filter(specialization__pk=specialization_id)
         serializer = CompetenceSerializer(competences, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class DisciplineSetBySpecialization(APIView):
+    permission_classes = (IsTeacherOrDean,)
+
+    def get(self, request, **kwargs):
+        specialization_id = kwargs.get("specialization_id")
+        disciplines = Discipline.objects.filter(specialization__pk=specialization_id)
+        serializer = DisciplineSerializer(disciplines, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)

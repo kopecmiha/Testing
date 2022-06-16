@@ -91,30 +91,32 @@ url - /features/get_competences_by_specialization/<id>/
 ```
 ***
 
-#####Запрос компетенции по дисциплине
+#####Запрос дисциплин по специальности
 Метод GET  
 Требуется аккаунт преподавателя или декана  
-url - /features//features/get_competences_by_discipline/<id>/
+url - /features/get_disciplines_by_specialization/<id>/
 ***
 Ответ
 ```json
 [
     {
-        "id": 2,
-        "code": "УК-1",
+        "id": 11,
+        "title": "Тест",
+        "competences": [
+            {
+                "id": 36,
+                "code": "OK-1",
+                "specialization": {
+                    "id": 5,
+                    "title": "Тест",
+                    "code": "10000"
+                }
+            }
+        ],
         "specialization": {
-            "id": 3,
-            "title": "TEST",
-            "code": "201"
-        }
-    },
-    {
-        "id": 35,
-        "code": "ОК-123",
-        "specialization": {
-            "id": 3,
-            "title": "TEST",
-            "code": "201"
+            "id": 5,
+            "title": "Тест",
+            "code": "10000"
         }
     }
 ]
