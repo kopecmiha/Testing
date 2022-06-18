@@ -115,7 +115,7 @@ class AnswersToExcel(APIView):
         last_column = len(result_questions)
         output = BytesIO()
         workbook = xlsxwriter.Workbook(output, {'in_memory': True})
-        #workbook = xlsxwriter.Workbook('%s.xlsx' % testing_name)
+        # workbook = xlsxwriter.Workbook('%s.xlsx' % testing_name)
         worksheet = workbook.add_worksheet()
         string_format = workbook.add_format({"border": 1, "border_color": "black"})
         percent_format = workbook.add_format({'num_format': '0.00"%"', "border": 1, "border_color": "black"})
@@ -176,5 +176,5 @@ class AnswersToExcel(APIView):
         response = HttpResponse(output.read(),
                                 content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
         filename = "%s.xlsx" % testing_name
-        response['Content-Disposition'] = 'attachment; filename='+ filename
+        response['Content-Disposition'] = 'attachment; filename=' + filename
         return response

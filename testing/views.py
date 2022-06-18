@@ -81,15 +81,19 @@ class GetTest(APIView):
     permission_classes = (IsAuthenticated,)
 
     def get(self, request, **kwargs):
-        user_status = request.user.status
         uuid_testing = kwargs.get("uuid_testing", False)
         mode = kwargs.get("mode")
-        testing = Testing.objects.filter(uuid_testing=uuid_testing)
-        if testing:
-            serializer = TestingSerializer(instance=testing.first(), context={"mode": mode})
-            response = serializer.data
-            return Response(response, status=status.HTTP_200_OK)
-        return Response({"message": "Test not found"}, status=status.HTTP_404_NOT_FOUND)
+        try:
+            testing = Testing.objects.get(uuid_testing=uuid_testing)
+        except Testing.DoesNotExist:
+            return Response({"message": "Test not found"}, status=status.HTTP_404_NOT_FOUND)
+        competences = []
+        if testing.specialization:
+            competences = Competence.objects.filter(specialization=testing.specialization).data
+            competences = CompetenceSerializer(instance=competences, many=True).data
+        serializer = TestingSerializer(instance=testing.first(), context={"mode": mode})
+        response = serializer.data.update({"competences": competences})
+        return Response(response, status=status.HTTP_200_OK)
 
 
 class ListOfTest(APIView):
@@ -116,6 +120,7 @@ class CreateQuestion(APIView):
         competences = []
         if specialization_id:
             competences = Competence.objects.filter(specialization__pk=specialization_id)
+            competences = CompetenceSerializer(instance=competences, many=True).data
         if not uuid_testing:
             return Response({"error": "Testing not specified"}, status=status.HTTP_400_BAD_REQUEST)
         try:
@@ -128,7 +133,7 @@ class CreateQuestion(APIView):
         serializer.save()
         question = serializer.data
         return Response({"message": "Question succesfully created", "question": question,
-                         "competences": CompetenceSerializer(instance=competences, many=True).data},
+                         "competences": competences},
                         status=status.HTTP_201_CREATED)
 
 
