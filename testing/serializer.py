@@ -1,5 +1,6 @@
 from rest_framework import serializers
 
+from features.models import Competence
 from features.serializer import CompetenceSerializer, DisciplineSerializer, SpecializationSerializer
 from .models import Testing, Question, Answer
 
@@ -24,14 +25,23 @@ class QuestionSerializer(serializers.ModelSerializer):
     answers = AnswerSerializer(many=True, required=False)
     competence = CompetenceSerializer(required=False)
 
+    def _competences(self, obj):
+        specialization_id = self.context.get("specialization_id")
+        if specialization_id:
+            return CompetenceSerializer(instance=Competence.objects.filter(specialization__id=specialization_id), many=True).data
+        return []
+
+    competences = serializers.SerializerMethodField("_competences")
+
     class Meta(object):
         model = Question
-        fields = "text", "type_answer_question", "uuid_question", "answers", "testing_array", "competence"
+        fields = "text", "type_answer_question", "uuid_question", "answers", "testing_array", "competence", "competences"
         extra_kwargs = {'uuid_question': {'read_only': True},
                         'image': {'read_only': True},
                         'answers': {'read_only': True},
                         'testing_array': {'write_only': True},
-                        'competence': {'read_only': True}
+                        'competence': {'read_only': True},
+                        'competences': {'read_only': True}
                         }
 
 

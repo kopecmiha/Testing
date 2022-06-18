@@ -87,13 +87,11 @@ class GetTest(APIView):
             testing = Testing.objects.get(uuid_testing=uuid_testing)
         except Testing.DoesNotExist:
             return Response({"message": "Test not found"}, status=status.HTTP_404_NOT_FOUND)
-        competences = []
+        context = {"mode": mode}
         if testing.specialization:
-            competences = Competence.objects.filter(specialization=testing.specialization)
-            competences = CompetenceSerializer(instance=competences, many=True).data
-        serializer = TestingSerializer(instance=testing, context={"mode": mode})
+            context.update({"specialization_id": testing.specialization.id})
+        serializer = TestingSerializer(instance=testing, context=context)
         response = serializer.data
-        response.update({"competences": competences})
         return Response(response, status=status.HTTP_200_OK)
 
 
@@ -118,10 +116,6 @@ class CreateQuestion(APIView):
         question = request.data
         uuid_testing = question.get("uuid_testing")
         specialization_id = question.get("specialization_id")
-        competences = []
-        if specialization_id:
-            competences = Competence.objects.filter(specialization__pk=specialization_id)
-            competences = CompetenceSerializer(instance=competences, many=True).data
         if not uuid_testing:
             return Response({"error": "Testing not specified"}, status=status.HTTP_400_BAD_REQUEST)
         try:
@@ -129,12 +123,11 @@ class CreateQuestion(APIView):
         except Testing.DoesNotExist:
             return Response({"error": "Testing not found"}, status=status.HTTP_404_NOT_FOUND)
         question["testing_array"] = [uuid.UUID(uuid_testing)]
-        serializer = QuestionSerializer(data=question)
+        serializer = QuestionSerializer(data=question, context={"specialization_id": specialization_id})
         serializer.is_valid(raise_exception=True)
         serializer.save()
         question = serializer.data
-        return Response({"message": "Question succesfully created", "question": question,
-                         "competences": competences},
+        return Response({"message": "Question succesfully created", "question": question},
                         status=status.HTTP_201_CREATED)
 
 
