@@ -9,6 +9,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from accounts.permissions import IsTeacherOrDean
 from features.models import Competence, Specialization, Discipline
+from features.serializer import CompetenceSerializer
 from results.models import TestingSession
 from testing.models import Testing, Question, Answer
 from testing.serializer import TestingSerializer, AnswerSerializer, QuestionSerializer, TestingSerializerList
@@ -126,7 +127,8 @@ class CreateQuestion(APIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         question = serializer.data
-        return Response({"message": "Question succesfully created", "question": question, "competences": competences},
+        return Response({"message": "Question succesfully created", "question": question,
+                         "competences": CompetenceSerializer(instance=competences, many=True).data},
                         status=status.HTTP_201_CREATED)
 
 
