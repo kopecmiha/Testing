@@ -24,6 +24,7 @@ class StartTesting(APIView):
         test = request.data.get("test_uuid")
         user = request.user
         test_started = timezone.now()
+        TestingSession.objects.filter(Q(testing=test) & Q(user=user)).delete()
         try:
             test = Testing.objects.get(uuid_testing=test)
         except Testing.DoesNotExist:
@@ -115,7 +116,6 @@ class AnswersToExcel(APIView):
         last_column = len(result_questions)
         output = BytesIO()
         workbook = xlsxwriter.Workbook(output, {'in_memory': True})
-        # workbook = xlsxwriter.Workbook('%s.xlsx' % testing_name)
         worksheet = workbook.add_worksheet()
         string_format = workbook.add_format({"border": 1, "border_color": "black"})
         percent_format = workbook.add_format({'num_format': '0.00"%"', "border": 1, "border_color": "black"})
@@ -149,7 +149,7 @@ class AnswersToExcel(APIView):
             for user_answer in user_answers:
                 question = user_answer.question.text
                 answers = user_answer.answers.values_list("correct_answer", flat=True)
-                answers = int(any(list(answers)))
+                answers = 0 if False in list(answers) else 1
                 worksheet.write(
                     row_index + 2, result_questions[question]["column"], answers, string_format
                 )
