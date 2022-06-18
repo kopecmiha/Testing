@@ -1,7 +1,8 @@
 from datetime import datetime, timedelta
-from io import BytesIO
+from io import BytesIO, StringIO
 
 from django.db.models import Q
+from django.http import HttpResponse
 from django.shortcuts import render
 from django.utils import timezone
 from rest_framework import status
@@ -112,9 +113,9 @@ class AnswersToExcel(APIView):
         result_questions.update(
             {'Тест пройден на': {"column": len(result_questions) + 1, "code": ""}})
         last_column = len(result_questions)
-        # workbook = xlsxwriter.Workbook(BytesIO(), {"in_memory": True})
-
-        workbook = xlsxwriter.Workbook('%s.xlsx' % testing_name)
+        output = BytesIO()
+        workbook = xlsxwriter.Workbook(output, {'in_memory': True})
+        #workbook = xlsxwriter.Workbook('%s.xlsx' % testing_name)
         worksheet = workbook.add_worksheet()
         string_format = workbook.add_format({"border": 1, "border_color": "black"})
         percent_format = workbook.add_format({'num_format': '0.00"%"', "border": 1, "border_color": "black"})
@@ -171,4 +172,9 @@ class AnswersToExcel(APIView):
             len(testing_results) + 2, 1, formula_result_text, percent_format
         )
         workbook.close()
-        return Response("Ok", status=status.HTTP_200_OK)
+        output.seek(0)
+        response = HttpResponse(output.read(),
+                                content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+        filename = "%s.xlsx" % testing_name
+        response['Content-Disposition'] = 'attachment; filename='+ filename
+        return response
