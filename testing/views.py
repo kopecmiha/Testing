@@ -89,10 +89,11 @@ class GetTest(APIView):
             return Response({"message": "Test not found"}, status=status.HTTP_404_NOT_FOUND)
         competences = []
         if testing.specialization:
-            competences = Competence.objects.filter(specialization=testing.specialization).data
+            competences = Competence.objects.filter(specialization=testing.specialization)
             competences = CompetenceSerializer(instance=competences, many=True).data
-        serializer = TestingSerializer(instance=testing.first(), context={"mode": mode})
-        response = serializer.data.update({"competences": competences})
+        serializer = TestingSerializer(instance=testing, context={"mode": mode})
+        response = serializer.data
+        response.update({"competences": competences})
         return Response(response, status=status.HTTP_200_OK)
 
 
