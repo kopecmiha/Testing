@@ -100,7 +100,9 @@ class ListOfTest(APIView):
 
     def get(self, request):
         user = request.user
-        finished_tests = TestingSession.objects.filter(Q(user=user) & Q(test_finished__isnull=False)).values_list(
+        finished_tests = []
+        if user.status == "STUDENT":
+            finished_tests = TestingSession.objects.filter(Q(user=user) & Q(test_finished__isnull=False)).values_list(
             "testing",
             flat=True)
         testings = Testing.objects.exclude(pk__in=list(finished_tests))

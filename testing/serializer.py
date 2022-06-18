@@ -31,11 +31,18 @@ class QuestionSerializer(serializers.ModelSerializer):
             return CompetenceSerializer(instance=Competence.objects.filter(specialization__id=specialization_id), many=True).data
         return []
 
+    def _editable(self, obj):
+        editable = len(obj.testing_array)
+        if editable < 2:
+            return True
+        return False
+
     competences = serializers.SerializerMethodField("_competences")
+    editable = serializers.SerializerMethodField("_editable")
 
     class Meta(object):
         model = Question
-        fields = "text", "type_answer_question", "uuid_question", "answers", "testing_array", "competence", "competences"
+        fields = "text", "type_answer_question", "uuid_question", "answers", "testing_array", "competence", "competences", "editable"
         extra_kwargs = {'uuid_question': {'read_only': True},
                         'image': {'read_only': True},
                         'answers': {'read_only': True},
