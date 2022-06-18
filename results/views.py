@@ -3,6 +3,7 @@ from io import BytesIO
 
 from django.db.models import Q
 from django.shortcuts import render
+from django.utils import timezone
 from rest_framework import status
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
@@ -21,7 +22,7 @@ class StartTesting(APIView):
     def post(self, request):
         test = request.data.get("test_uuid")
         user = request.user
-        test_started = datetime.now()
+        test_started = timezone.now()
         try:
             test = Testing.objects.get(uuid_testing=test)
         except Testing.DoesNotExist:
@@ -41,7 +42,7 @@ class FinishTesting(APIView):
             session = TestingSession.objects.get(session_uuid=session_uuid, user=user)
         except TestingSession.DoesNotExist:
             return Response({"error": "Session not found"}, status=status.HTTP_404_NOT_FOUND)
-        session.test_finished = datetime.now()
+        session.test_finished = timezone.now()
         session.save()
         return Response({"message": "Test session finished"}, status=status.HTTP_200_OK)
 
@@ -58,13 +59,13 @@ class UserAnswer(APIView):
             return Response({"error": "Session not found"}, status=status.HTTP_404_NOT_FOUND)
         if session.test_finished is not None:
             return Response({"error": "Testing finished"}, status=status.HTTP_400_BAD_REQUEST)
-        test = session.testing
-        test_started = session.test_started.timestamp()
-        answer_time = datetime.now().timestamp()
-        diff = timedelta(seconds=answer_time - test_started)
-        test_time = timedelta(seconds=test.answer_time)
-        if test_time < diff:
-            return Response({"error": "Time is over"}, status=status.HTTP_400_BAD_REQUEST)
+        # test = session.testing
+        # test_started = session.test_started.timestamp()
+        # answer_time = datetime.now().timestamp()
+        # diff = timedelta(seconds=answer_time - test_started)
+        # test_time = timedelta(seconds=test.answer_time)
+        # if test_time < diff:
+        # return Response({"error": "Time is over"}, status=status.HTTP_400_BAD_REQUEST)
         question_uuid = request.data.get("question_uuid")
         question = Question.objects.filter(uuid_question=question_uuid)
         if question:
@@ -100,48 +101,74 @@ class AnswersToExcel(APIView):
         uuid_testing = kwargs.get("uuid_testing")
         testing_name = Testing.objects.get(uuid_testing=uuid_testing).title
         testing_results = TestingSession.objects.filter(testing__uuid_testing=uuid_testing)
-        questions = Question.objects.filter(testing_array__icontains=uuid_testing).values_list("text", flat=True)
+        questions = Question.objects.filter(testing_array__icontains=uuid_testing).values("text", "competence__code")
         result_questions = {}
         for column, question in enumerate(list(questions)):
-            result_questions.update({question: column + 1})
-        result_questions.update({"Тест пройден на": len(result_questions) + 1})
+            new_question = {question["text"]: {
+                "column": column + 1,
+                "code": question["competence__code"]
+            }}
+            result_questions.update(new_question)
+        result_questions.update(
+            {'Тест пройден на': {"column": len(result_questions) + 1, "code": ""}})
         last_column = len(result_questions)
         # workbook = xlsxwriter.Workbook(BytesIO(), {"in_memory": True})
+
         workbook = xlsxwriter.Workbook('%s.xlsx' % testing_name)
         worksheet = workbook.add_worksheet()
         string_format = workbook.add_format({"border": 1, "border_color": "black"})
         percent_format = workbook.add_format({'num_format': '0.00"%"', "border": 1, "border_color": "black"})
         worksheet.set_column(0, 0, 45)
         worksheet.set_column(last_column, last_column, 20)
-        for question, column_index in result_questions.items():
+
+        # write questions
+        for question, info in result_questions.items():
             worksheet.write(
-                0, column_index, question, string_format
+                0, info["column"], question, string_format
             )
+            worksheet.write(
+                1, info["column"], info["code"], string_format
+            )
+
+        # write results
+        worksheet.write(
+            0, 0, "Вопрос", string_format
+        )
+        worksheet.write(
+            1, 0, "Компетенция", string_format
+        )
         for row_index, testing_result in enumerate(testing_results):
+            # write user last name
             user_last_name = testing_result.user.last_name
             worksheet.write(
-                row_index + 1, 0, user_last_name, string_format
+                row_index + 2, 0, user_last_name, string_format
             )
+            # write answers result
             user_answers = testing_result.useranswers_set.all()
             for user_answer in user_answers:
                 question = user_answer.question.text
                 answers = user_answer.answers.values_list("correct_answer", flat=True)
                 answers = int(any(list(answers)))
                 worksheet.write(
-                    row_index + 1, result_questions[question], answers, string_format
+                    row_index + 2, result_questions[question]["column"], answers, string_format
                 )
-                formula_finish_cell = chr(65+last_column-1)
-                formula_text = "=SUM(B%s:%s%s)/%s*100" % (row_index + 2, formula_finish_cell, row_index + 2, last_column-1)
+                # single person test percent
+                formula_finish_cell = chr(65 + last_column - 1)
+                formula_text = "=SUM(B%s:%s%s)/%s*100" % (
+                    row_index + 3, formula_finish_cell, row_index + 3, last_column - 1)
                 worksheet.write_formula(
-                    row_index + 1, last_column, formula_text, percent_format
+                    row_index + 2, last_column, formula_text, percent_format
                 )
+
+        # group test percent
         worksheet.write(
-            len(testing_results)+1, 0, "Средний процент прохождения теста группой", string_format
+            len(testing_results) + 2, 0, "Средний процент прохождения теста группой", string_format
         )
         formula_result_finish_cell = chr(65 + last_column - 1)
-        formula_result_text = "=SUM(B1:%s%s)/%s*100" % (formula_result_finish_cell, len(testing_results) + 1, last_column - 1)
+        formula_result_text = "=SUM(B3:%s%s)/%s*100" % (
+            formula_result_finish_cell, len(testing_results) + 2, last_column - 1)
         worksheet.write_formula(
-            len(testing_results) + 1, 1, formula_result_text, percent_format
+            len(testing_results) + 2, 1, formula_result_text, percent_format
         )
         workbook.close()
         return Response("Ok", status=status.HTTP_200_OK)

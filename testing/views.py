@@ -9,6 +9,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from accounts.permissions import IsTeacherOrDean
 from features.models import Competence, Specialization, Discipline
+from results.models import TestingSession
 from testing.models import Testing, Question, Answer
 from testing.serializer import TestingSerializer, AnswerSerializer, QuestionSerializer, TestingSerializerList
 
@@ -43,6 +44,10 @@ class UpdateTest(APIView):
             try:
                 specialization = Specialization.objects.get(pk=specialization_id)
                 current_testing.specialization = specialization
+                removed_questions = current_testing.questions().exclude(competence__specialization=specialization)
+                for question in removed_questions:
+                    question.testing_array.remove(uuid.UUID(uuid_testing))
+                    question.save()
             except Specialization.DoesNotExist:
                 return Response({"error": "Specialization not found"}, status=status.HTTP_404_NOT_FOUND)
         if discipline_id:
@@ -90,7 +95,11 @@ class ListOfTest(APIView):
     permission_classes = (IsAuthenticated,)
 
     def get(self, request):
-        testings = Testing.objects.all()
+        user = request.user
+        finished_tests = TestingSession.objects.filter(Q(user=user) & Q(test_finished__isnull=False)).values_list(
+            "testing",
+            flat=True)
+        testings = Testing.objects.exclude(pk__in=list(finished_tests))
         serializer = TestingSerializerList(instance=testings, many=True)
         response = serializer.data
         return Response(response, status=status.HTTP_200_OK)
@@ -102,6 +111,10 @@ class CreateQuestion(APIView):
     def post(self, request):
         question = request.data
         uuid_testing = question.get("uuid_testing")
+        specialization_id = question.get("specialization_id")
+        competences = []
+        if specialization_id:
+            competences = Competence.objects.filter(specialization__pk=specialization_id)
         if not uuid_testing:
             return Response({"error": "Testing not specified"}, status=status.HTTP_400_BAD_REQUEST)
         try:
@@ -113,7 +126,7 @@ class CreateQuestion(APIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         question = serializer.data
-        return Response({"message": "Question succesfully created", "question": question},
+        return Response({"message": "Question succesfully created", "question": question, "competences": competences},
                         status=status.HTTP_201_CREATED)
 
 
@@ -221,7 +234,8 @@ class AddQuestionsFromBankByCompetence(APIView):
         uuid_testing = request.data.get("uuid_testing")
         competence_id = request.data.get("competence_id")
         questions_count = request.data.get("questions_count")
-        questions_id_list = Question.objects.filter(competence=competence_id).values_list('pk', flat=True).order_by("?")[:questions_count]
+        questions_id_list = Question.objects.filter(competence=competence_id).values_list('pk', flat=True).order_by(
+            "?")[:questions_count]
         questions = Question.objects.filter(pk__in=list(questions_id_list))
         try:
             Testing.objects.get(uuid_testing=uuid_testing)
@@ -236,7 +250,7 @@ class AddQuestionsFromBankByDiscipline(APIView):
 
     def post(self, request):
         uuid_testing = request.data.get("uuid_testing")
-        #discipline_id = request.data.get("discipline_id")
+        # discipline_id = request.data.get("discipline_id")
         query_by_competence = request.data.get("query_by_competence")
         questions_id_list = list()
         for competence in query_by_competence:
