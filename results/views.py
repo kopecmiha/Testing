@@ -24,7 +24,7 @@ class StartTesting(APIView):
         test = request.data.get("test_uuid")
         user = request.user
         test_started = timezone.now()
-        TestingSession.objects.filter(Q(uuid_testing=test) & Q(user=user)).delete()
+        TestingSession.objects.filter(Q(testing__uuid_testing=test) & Q(user=user)).delete()
         try:
             test = Testing.objects.get(uuid_testing=test)
         except Testing.DoesNotExist:
